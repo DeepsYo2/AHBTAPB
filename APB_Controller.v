@@ -1,11 +1,11 @@
 module APB_Controller(
     input Hclk, Hresetn, Hwrite, valid, 
-    input [31:0] Haddr, Hwdata, Haddr1, Haddr2, Hwdata1, Hwdata2, Hrdata, 
-    input Hwritereg, input [2:0] tempselx, input [1:0] Hresp, 
+    input [31:0] Haddr, Hwdata, Haddr1, Haddr2, Hwdata1, Hwdata2, Prdata, 
+    input Hwritereg, input [2:0] tempselx, 
     output reg Pwrite, Penable, Hreadyout, 
     output reg [2:0] Pselx, 
-    output reg [31:0] Pwdata, Paddr, Prdata
-);
+    output reg [31:0] Pwdata, Paddr );
+
 
 // Define the states
 parameter ST_IDLE = 3'b000,
