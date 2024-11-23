@@ -1,6 +1,7 @@
-module AHB_SLAVE_Interface( input Hclk, Hresetn, Hwrite, Hreadyin, input[1:0] Htrans, input[31:0] Haddr, Hwdata,
+module AHB_SLAVE_Interface( input Hclk, Hresetn, Hwrite, Hreadyin, 
+ input[1:0] Htrans, Hresp, input[31:0] Haddr, Hwdata, Prdata, 
  output reg valid, output reg[31:0] Haddr1, Haddr2, Hwdata1, Hwdata2, Hrdata, 
- output reg Hwritereg, output reg[2:0] tempselx, output[1:0] Hresp );
+ output reg Hwritereg, output reg[2:0] tempselx );
 
 
 // Decalration of output valid
