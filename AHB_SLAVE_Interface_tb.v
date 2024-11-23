@@ -22,12 +22,12 @@ AHB_SLAVE_Interface DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .Hread
 
 
 //Declaration of Hclk
-always
+initial
   begin
 	Hclk = 1'b0;
-  #5;
+  forever #10;
 	Hclk = ~Hclk;
-end
+  end
 
 
 //Declaration of Hresetn
@@ -35,7 +35,7 @@ task r();
   begin
 	@(negedge Hclk)
 	    Hresetn = 1'b0;
-	#5;
+	#10;
 	@(negedge Hclk)
 	    Hresetn = 1'b1;
   end
@@ -49,7 +49,7 @@ task in( input a, input[1:0] b, input[31:0] c, input[31:0] d );
 	Htrans = b;
 	Haddr = c;
 	Hwdata = d;
-  end
+   end
 endtask
 
 
@@ -75,17 +75,3 @@ initial
   end
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
