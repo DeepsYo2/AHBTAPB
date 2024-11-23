@@ -36,7 +36,7 @@ APB_Controller DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .valid(vali
 always
   begin
 	Hclk = 1'b0;
-  #5;
+  #10;
 	Hclk = ~Hclk;
   end
 
