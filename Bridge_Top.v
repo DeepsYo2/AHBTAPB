@@ -1,77 +1,40 @@
 /*
-// TITLE :          BRIDGE TOP.v
+// TITLE :          Bridge_Top.v
 
 // Created by :     Mr. Deepak Kumar
 
-// Duration :       26 Nov 2024 to 27 Nov 2024
+// Duration :       22 Nov 2024 to 24 Nov 2024
 
-// Date of publish : 30 Nov 2024
+// Date of publish : 1 Dec 2024
 */
 
 
-module Bridge_Top (
-    input Hclk, 
-    input Hresetn, 
-    input Hwrite, 
-    input Hreadyin,
-    input[1:0] Hresp,  
-    input[1:0] Htrans, 
-    input [31:0] Haddr,
-    input [31:0] Hwdata, 
-    input [31:0] Prdata, 
 
-    output Pwrite, 
-    output Paddr, 
-    output Penable, 
-    output Pselx,
-    output Pwdata, 
-    output [31:0] Hreadyout,
-    output [31:0] Hrdata 
-);
+module BRIDGE_TOP(Hclk,Hresetn,Hwrite,Hreadyin,Hreadyout,Hwdata,Haddr,Htrans,Prdata,Penable,Pwrite,Pselx,Paddr,Pwdata,Hreadyout,Hresp,Hrdata);
+
+input Hclk,Hresetn,Hwrite,Hreadyin;
+input [31:0] Hwdata,Haddr,Prdata;
+input[1:0] Htrans;
+output Penable,Pwrite,Hreadyout;
+output [1:0] Hresp; 
+output [2:0] Pselx;
+output [31:0] Paddr,Pwdata;
+output [31:0] Hrdata;
 
 
-// Instantiate the AHB_SLAVE_Interface module
-    AHB_SLAVE_Interface AHB_SLAVE (
-        .Hclk(Hclk),
-        .Hresetn(Hresetn), 
-        .Hwrite(Hwrite), 
-        .Hreadyin(Hreadyin), 
-	.Hresp(Hresp), 
-        .Htrans(Htrans), 
-        .Haddr(Haddr), 
-        .Hwdata(Hwdata), 
-        .Prdata(Prdata), 
-	.Haddr1(Haddr1), 
-	.Haddr2(Haddr2), 
-	.Hrdata(Hrdata), 
-	.Hwdata1(Hwdata1), 
-	.Hwdata2(Hwdata2),  
-        .valid(valid), 
-        .Hwritereg(Hwritereg), 
-        .tempselx(tempselx) 
-    );
+//INTERMEDIATE SIGNALS
 
-    // Instantiate the APB_Controller module
-    APB_Controller APB_CONTROLLER (
-        .Hclk(Hclk), 
-        .Hresetn(Hresetn), 
-        .Hwrite(Hwrite), 
-        .valid(valid), 
-        .Haddr(Haddr), 
-        .Hwdata(Hwdata), 
-        .Haddr1(Haddr1), 
-        .Haddr2(Haddr2), 
-        .Hwdata1(Hwdata1), 
-        .Hwdata2(Hwdata2), 
-        .Hwritereg(Hwritereg), 
-        .tempselx(tempselx), 
-        .Pwrite(Pwrite),  
-        .Penable(Penable),  
-        .Hreadyout(Hreadyout), 
-        .Pselx(Pselx), 
-        .Pwdata(Pwdata), 
-        .Paddr(Paddr), 
-        .Prdata(Prdata) 
-    );
+wire valid;
+wire [31:0] Haddr1,Haddr2,Hwdata1,Hwdata2;
+wire Hwritereg;
+wire [2:0] tempselx;
+
+
+// MODULE INSTANTIATIONS
+
+AHB_SLAVE_INTERFACE AHB_SLAVE_INTERFACE (Hclk,Hresetn,Hwrite,Hreadyin,Htrans,Haddr,Hwdata,Prdata,valid,Haddr1,Haddr2,Hwdata1,Hwdata2,Hrdata,Hwritereg,tempselx,Hresp);
+
+APB_CONTROLLER APB_CONTROLLER ( Hclk,Hresetn,valid,Haddr1,Haddr2,Hwdata1,Hwdata2,Prdata,Hwrite,Haddr,Hwdata,Hwritereg,tempselx,Pwrite,Penable,Pselx,Paddr,Pwdata,Hreadyout);
+
 
 endmodule
