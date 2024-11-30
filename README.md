@@ -128,7 +128,8 @@ Facilitates integration of IoT sensors and actuators that typically require low-
 
 Simulation Output:
 
-![image](https://github.com/user-attachments/assets/60d92362-2c91-4bb0-8300-ede568cc7af7)
+![AHBTAPB_Simulation_1](https://github.com/user-attachments/assets/bcaa3d03-d117-4807-8381-81a21e6d244f)
+
 
 
 Synthesis Output:
