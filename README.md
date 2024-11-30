@@ -132,7 +132,7 @@ Simulation Output:
 ![image](https://github.com/user-attachments/assets/90573583-6c5d-4f24-8615-87a299a04b19)
 ![image](https://github.com/user-attachments/assets/42a8a923-b8c0-4d05-b0fa-0c0ae65b6462)
 ![image](https://github.com/user-attachments/assets/86a4fbae-b2bc-497f-84e4-492758dfc51b)
-
+![image](https://github.com/user-attachments/assets/f47f8bf2-89d0-47ec-8a4e-efc8e002eb01)
 
 
 Synthesis Output:
