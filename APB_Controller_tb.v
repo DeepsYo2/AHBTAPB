@@ -1,3 +1,15 @@
+/*
+// TITLE :          APB CONTROLLER_tb.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       18 Nov 2024 to 21 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
+
+
+
 module APB_Controller_tb();
 
 
@@ -33,10 +45,10 @@ APB_Controller DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .valid(vali
 
 
 // Clock Generation
-always
+initial
   begin
 	Hclk = 1'b0;
-  #10;
+	forever #10
 	Hclk = ~Hclk;
   end
 
