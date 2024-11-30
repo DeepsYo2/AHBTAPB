@@ -1,103 +1,86 @@
-/*
-// TITLE :          APB CONTROLLER_tb.v
+module APB_CONTROLLER_tb;
 
-// Created by :     Mr. Deepak Kumar
-
-// Duration :       18 Nov 2024 to 21 Nov 2024
-
-// Date of publish : 30 Nov 2024
-*/
-
-
-
-module APB_Controller_tb();
-
-
-// Declare the ports
-reg Hclk;
-reg Hresetn;
-reg Hwrite;
-reg valid;
-reg Hwritereg;
-reg [31:0] Haddr;
-reg [31:0] Hwdata;
-reg [31:0] Haddr1;
-reg [31:0] Haddr2;
-reg [31:0] Hwdata1;
-reg [31:0] Hwdata2;
+// Inputs
+reg Hclk, Hresetn, valid, Hwrite, Hwritereg;
+reg [31:0] Hwdata, Haddr, Haddr1, Haddr2, Hwdata1, Hwdata2, Prdata;
 reg [2:0] tempselx;
 
-wire Pwrite;
-wire Penable;
-wire Hreadyout;
+// Outputs
+wire Pwrite, Penable, Hreadyout;
 wire [2:0] Pselx;
-wire [31:0] Pwdata;
-wire [31:0] Paddr;
-wire [31:0] Prdata;
+wire [31:0] Paddr, Pwdata;
 
+// Instantiate the Unit Under Test (UUT)
+APB_CONTROLLER uut (
+    .Hclk(Hclk),
+    .Hresetn(Hresetn),
+    .valid(valid),
+    .Haddr1(Haddr1),
+    .Haddr2(Haddr2),
+    .Hwdata1(Hwdata1),
+    .Hwdata2(Hwdata2),
+    .Prdata(Prdata),
+    .Hwrite(Hwrite),
+    .Haddr(Haddr),
+    .Hwdata(Hwdata),
+    .Hwritereg(Hwritereg),
+    .tempselx(tempselx),
+    .Pwrite(Pwrite),
+    .Penable(Penable),
+    .Pselx(Pselx),
+    .Paddr(Paddr),
+    .Pwdata(Pwdata),
+    .Hreadyout(Hreadyout)
+);
 
-// Instantiate the APB Controller
-APB_Controller DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .valid(valid),
-		    .Hwritereg(Hwritereg), .Haddr(Haddr), .Hwdata(Hwdata), .Haddr1(Haddr1),
-		    .Haddr2(Haddr2), .Hwdata1(Hwdata1), .Hwdata2(Hwdata2), .tempselx(tempselx),
-		    .Pwrite(Pwrite), .Penable(Penable), .Hreadyout(Hreadyout), .Pselx(Pselx),
-		    .Pwdata(Pwdata), .Paddr(Paddr), .Prdata(Prdata) );
+// Clock generation
+initial begin
+    Hclk = 0;
+    forever #5 Hclk = ~Hclk; // Clock period: 10 ns
+end
 
+// Stimulus
+initial begin
+    // Initialize inputs
+    Hresetn = 0; valid = 0; Hwrite = 0; Hwritereg = 0;
+    Hwdata = 0; Haddr = 0; Haddr1 = 0; Haddr2 = 0;
+    Hwdata1 = 0; Hwdata2 = 0; Prdata = 0; tempselx = 3'b000;
 
-// Clock Generation
-initial
-  begin
-	Hclk = 1'b0;
-	forever #10
-	Hclk = ~Hclk;
-  end
+    // Apply reset
+    #10 Hresetn = 1;
 
+    // Test Case 1: Idle to Read Transition
+    #10 valid = 1; Hwrite = 0; Haddr = 32'h1000_0000; tempselx = 3'b001;
 
-// Reset task
-task r();
-  begin
-	@(negedge Hclk)
-		Hresetn = 1'b0;
-	#10;
-		Hresetn = 1'b1;
-  end
-endtask
+    // Wait and check outputs
+    #20 valid = 0;
 
+    // Test Case 2: Idle to Write Transition
+    #10 valid = 1; Hwrite = 1; Hwdata = 32'hA5A5_A5A5; Haddr1 = 32'h2000_0000;
 
-// Input Stimulus task
-task in(input a, input [31:0] b, input [31:0] c, input [31:0] d, input [31:0] e, input [31:0] f, input [31:0] g, input [2:0] h, input w);
-  begin
-	valid = a;
-    	Haddr = b;
-    	Hwdata = c;
-    	Haddr1 = d;
-    	Haddr2 = e;
-    	Hwdata1 = f;
-    	Hwdata2 = g;
-    	tempselx = h;
-    	Hwritereg = w;
-  end
-endtask
+    // Wait and check outputs
+    #20 valid = 0;
 
-// Stimulus Generation
-initial
-  begin
-	r;
-	#10;
-	
-	// Apply first set of inputs (Write operation)
-    	in(1'b1, 32'h8c00_1234, 32'h8500_0000, 32'h8040_0000, 32'h8000_0000, 32'h0000_0000, 32'h0000_0000, 3'b001, 1'b1);
-    	#10;
-    
-    	// Apply second set of inputs (Read operation)
-    	in(1'b1, 32'h8040_0000, 32'h8000_0000, 32'h8040_0000, 32'h8000_0000, 32'h0000_0000, 32'h0000_0000, 3'b010, 1'b0);
-    	#10;
-    
-    	// Apply third set of inputs (Write operation)
-    	in(1'b1, 32'h8c00_5678, 32'h9500_0000, 32'h8040_1111, 32'h9000_1111, 32'h0000_0000, 32'h0000_0000, 3'b011, 1'b1);
-    	#10;
+    // Test Case 3: Read Enable
+    #10 valid = 1; Hwrite = 0; Haddr = 32'h3000_0000;
 
-	$finish;    // End Simulatioin
-  end
+    // Wait and check outputs
+    #20;
+
+    // Test Case 4: Write Enable
+    #10 valid = 1; Hwritereg = 1; Hwdata = 32'h5A5A_5A5A; Haddr2 = 32'h4000_0000;
+
+    // Wait and check outputs
+    #20 valid = 0;
+
+    // End simulation
+    #50 $finish;
+end
+
+// Monitor signals
+initial begin
+    $monitor($time, " Hclk=%b Hresetn=%b valid=%b Hwrite=%b Hwritereg=%b Paddr=%h Pwdata=%h Pwrite=%b Penable=%b Pselx=%b Hreadyout=%b",
+                     Hclk, Hresetn, valid, Hwrite, Hwritereg, Paddr, Pwdata, Pwrite, Penable, Pselx, Hreadyout);
+end
 
 endmodule
