@@ -1,3 +1,14 @@
+/*
+// TITLE :          BRIDGE TOP.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       26 Nov 2024 to 27 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
+
+
 module Bridge_Top (
     input Hclk, 
     input Hresetn, 
