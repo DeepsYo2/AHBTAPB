@@ -1,3 +1,15 @@
+/*
+// TITLE :          AHB SLAVE INTERFACE_tb.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       6 Nov 2024 to 8 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
+
+
+
 module AHB_SLAVE_Interface_tb();
 
 
@@ -25,7 +37,7 @@ AHB_SLAVE_Interface DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .Hread
 initial
   begin
 	Hclk = 1'b0;
-  forever #10;
+  forever #10
 	Hclk = ~Hclk;
   end
 
@@ -75,3 +87,4 @@ initial
   end
 
 endmodule
+
