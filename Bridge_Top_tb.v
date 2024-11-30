@@ -1,3 +1,14 @@
+/*
+// TITLE :          APB Controller.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       28 Nov 2024 to 29 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
+
+
 module Bridge_Top_tb();
 
 
@@ -31,19 +42,9 @@ Bridge_Top Bridge( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .Hreadyin(Hr
 initial
   begin
 	Hclk = 1'b0;
-	forever
-	#10;
+	forever #10
 	Hclk = ~Hclk;
   end
-
-
-task in();
-  begin
-	@(negedge Hclk)
-		Hclk = 1'b1;
-		Hresetn = 1'b1;
-  end
-endtask
 
 
 task reset();
@@ -59,17 +60,15 @@ endtask
 
 initial
   begin
-	in();
-	#10;
 	reset;
 	#10;
 	AHB.single_write();
-	
-	//AHB.single_read();
-	//#10;
-	//AHB.burst_write();
-	//#10;
-	//AHB.wrap_write();
+	#10;
+	AHB.single_read();
+	#10;
+	AHB.burst_write();
+	#10;
+	AHB.wrap_write();
   end
 
 endmodule
