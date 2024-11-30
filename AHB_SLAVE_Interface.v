@@ -1,83 +1,98 @@
-////**
-// TITLE :          AHB SLAVE INTERFACE.v
+/*
+// TITLE :          AHB_SLAVE_INTERFACE.v
 
 // Created by :     Mr. Deepak Kumar
 
-// Duration :       1 Nov 2024 to 5 Nov 2024
+// Duration :       22 Nov 2024 to 24 Nov 2024
 
-// Date of publish : 30 Nov 2024
-**////
-
-
-module AHB_SLAVE_Interface( input Hclk, Hresetn, Hwrite, Hreadyin, 
- input[1:0] Htrans, Hresp, input[31:0] Haddr, Hwdata, Prdata, 
- output reg valid, output reg[31:0] Haddr1, Haddr2, Hwdata1, Hwdata2, Hrdata, 
- output reg Hwritereg, output reg[2:0] tempselx );
+// Date of publish : 1 Dec 2024
+*/
 
 
-// Decalration of output valid
-always@(*)
-  begin
-		valid = 1'b0;  
-	  if( Hreadyin && ( Htrans == 2'b10 || Htrans == 2'b11 ) && ( Haddr >= 32'h8000_0000 && Haddr < 32'h8c00_0000 ) )
-		valid = 1'b1;
-
-  end
-
-
-// Declaration of output tempselx
-always@(*)
-  begin
-		tempselx = 3'b000;
-	  if( Haddr >= 32'h8000_0000 && Haddr < 32'h8400_0000 )
-		tempselx = 3'b001;
-	  else if( Haddr >= 32'h8400_0000 && Haddr < 32'h8800_0000 )
-		tempselx = 3'b010;
-	  else if( Haddr >= 32'h8800_0000 && Haddr < 32'h8c00_0000 )
-		tempselx = 3'b100;
-
-  end
+module AHB_SLAVE_INTERFACE(Hclk,Hresetn,Hwrite,Hreadyin,Htrans,Haddr,Hwdata,
+			   Prdata,valid,Haddr1,Haddr2,Hwdata1,Hwdata2,Hrdata,Hwritereg,tempselx,Hresp);
+input Hclk,Hresetn;
+input Hwrite,Hreadyin;
+input [1:0] Htrans;
+input [31:0] Haddr,Hwdata,Prdata;
+output reg valid;
+output reg [31:0] Haddr1,Haddr2,Hwdata1,Hwdata2;
+output [31:0] Hrdata; 
+output reg Hwritereg;
+output reg [2:0] tempselx;
+output  [1:0] Hresp;
 
 
-// Decalration of outputs Haddr1 and Haddr2
-always @(posedge Hclk)
-  begin
-	if( !Hresetn )
+
+// Implementing Pipeline Logic
+
+	always @(posedge Hclk)
 		begin
-		Haddr1 <= 32'h0000_0000;
-        	Haddr2 <= 32'h0000_0000;
-    	  	end
-	else
-	  	begin
-        	Haddr1 <= Haddr;
-        	Haddr2 <= Haddr1;
-    	  	end
-  end
+		
+			if (~Hresetn)
+				begin
+					Haddr1<=0;
+					Haddr2<=0;
+				end
+			else
+				begin
+					Haddr1<=Haddr;
+					Haddr2<=Haddr1;
+				end
+		
+		end
 
-
-// Declaration of outputs Hwdata1 and Hwdata2
-always @(posedge Hclk)
-  begin
-	if( !Hresetn )
+	always @(posedge Hclk)
 		begin
-		Hwdata1 <= 32'h0000_0000;
-        	Hwdata2 <= 32'h0000_0000;
-    	  	end
-	else
-	  	begin
-        	Hwdata1 <= Haddr;
-        	Hwdata2 <= Haddr1;
-    	  	end
-  end
+		
+			if (~Hresetn)
+				begin
+					Hwdata1<=0;
+					Hwdata2<=0;
+				end
+			else
+				begin
+					Hwdata1<=Hwdata;
+					Hwdata2<=Hwdata1;
+				end
+		
+		end
+		
+	always @(posedge Hclk)
+		begin	
+			if (~Hresetn)
+				Hwritereg<=0;
+			else
+				Hwritereg<=Hwrite;
+		end
+		
+		
+/// Implementing Valid Logic Generation
 
+	always @(Hreadyin,Haddr,Htrans,Hresetn)
+		begin
+			valid=0;
+			if (Hresetn && Hreadyin && (Haddr>=32'h8000_0000 && Haddr<32'h8C00_0000) && (Htrans==2'b10 || Htrans==2'b11) )
+				valid=1;
 
-// Declaration of output Hwritereg
-always@(posedge Hclk)
-  begin
-	if( !Hresetn )
-		Hwritereg <= 1'b0;
-	else
-		Hwritereg <= Hwrite;
-  end
+		end
+		
+/// Implementing Tempselx Logic
+
+	always @(Haddr,Hresetn)
+		begin
+			tempselx=3'b000;
+			if (Hresetn && Haddr>=32'h8000_0000 && Haddr<32'h8400_0000)
+				tempselx=3'b001;
+			else if (Hresetn && Haddr>=32'h8400_0000 && Haddr<32'h8800_0000)
+				tempselx=3'b010;
+			else if (Hresetn && Haddr>=32'h8800_0000 && Haddr<32'h8C00_0000)
+				tempselx=3'b100;
+
+		end
+	
+
+assign Hrdata = Prdata;
+assign Hresp=2'b00;
 
 endmodule
