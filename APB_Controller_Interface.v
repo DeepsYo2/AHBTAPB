@@ -1,36 +1,38 @@
 /*
-// TITLE :          APB Controller INTERFACE.v
+// TITLE :          APB_CONTROLLER_INTERFACE.v
 
 // Created by :     Mr. Deepak Kumar
 
-// Duration :       24 Nov 2024 to 25 Nov 2024
+// Duration :       22 Nov 2024 to 24 Nov 2024
 
-// Date of publish : 30 Nov 2024
+// Date of publish : 1 Dec 2024
 */
 
 
-module APB_Controller_Interface( 
-    input Pwrite, Penable, 
-    input[2:0] Pselx, 
-    input[31:0] Paddr, Pwdata, 
-    output Pwrite_out, Penable_out, 
-    output[2:0] Pselx_out, 
-    output[31:0] Paddr_out, Pwdata_out, 
-    output reg[31:0] Prdata 
-);
 
-assign Pwrite_out = Pwrite;
-assign Pselx_out = Pselx;
-assign Paddr_out = Paddr;
-assign Pwdata_out = Pwdata;
-assign Penable_out = Penable;
+module APB_CONTROLLER_INTERFACE(Pwrite,Pselx,Penable,Paddr,Pwdata,Pwriteout,Pselxout,Penableout,Paddrout,Pwdataout,Prdata);
+
+input Pwrite,Penable;
+input [2:0] Pselx;
+input [31:0] Pwdata,Paddr;
+
+output Pwriteout,Penableout;
+output [2:0] Pselxout;
+output [31:0] Pwdataout,Paddrout;
+output reg [31:0] Prdata;
+
+assign Penableout=Penable;
+assign Pselxout=Pselx;
+assign Pwriteout=Pwrite;
+assign Paddrout=Paddr;
+assign Pwdataout=Pwdata;
 
 always @(*)
-  begin
-    	if (!Pwrite && Penable)
-	  begin
-        	Prdata = 32'd25;
-  	  end
-  end
+ begin
+  if (~Pwrite && Penable)
+   Prdata=($random)%256;
+  else
+   Prdata=0;
+ end
 
 endmodule
