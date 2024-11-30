@@ -39,7 +39,10 @@ Key Features:
 •	Simple interface: Minimal signal set for reduced complexity.
 •	Two-cycle transfers: All read and write operations require two clock cycles.
 •	Peripheral compatibility: Allows easy integration of a wide range of low-speed peripherals.
- 
+
+![image](https://github.com/user-attachments/assets/eac75c74-abb8-40c3-a86b-4263b0404c9b)
+
+
 
 # Signals:
 1.	PCLK: Clock signal used to time all transfers on the APB.
@@ -52,6 +55,8 @@ Key Features:
 8.	PWDATA[31:0]: Data bus driven by the bridge to send data to the APB slave during a write operation.
    
 APB is often used in conjunction with AHB, where an AHB-to-APB bridge facilitates the interaction between high-speed and low-speed components.
+
+![image](https://github.com/user-attachments/assets/0229477e-b7b5-4024-8f43-06d8fd756b0c)
 
 
 # Architecture of AHB-to-APB Bridge:
@@ -66,6 +71,9 @@ The AHB-to-APB bridge serves as an intermediary module that translates high-spee
 3.	APB Controller : 
 •	Initiates transactions on the APB.
 •	Provides address (PADDR), data (PWDATA), and control signals (PWRITE, PSEL).
+
+![image](https://github.com/user-attachments/assets/99b10ba3-0ed0-4751-88cc-e54a7e512a8e)
+
  
 4.	APB Controller Interface: The APB Controller Interface facilitates communication between the APB Controller and APB slaves, handling address decoding, data transfer, and peripheral selection signals.
 
@@ -120,10 +128,12 @@ Facilitates integration of IoT sensors and actuators that typically require low-
 
 Simulation Output:
 
+![image](https://github.com/user-attachments/assets/60d92362-2c91-4bb0-8300-ede568cc7af7)
 
 
 Synthesis Output:
  
+![image](https://github.com/user-attachments/assets/78f846fd-3d33-4618-8baa-4509ec6a7f46)
 
 
 
