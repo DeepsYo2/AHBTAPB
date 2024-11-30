@@ -1,77 +1,72 @@
-/*
-// TITLE :          APB Controller.v
+module BRIDGE_TOP_tb;
 
-// Created by :     Mr. Deepak Kumar
+// Inputs
+reg Hclk, Hresetn, Hwrite, Hreadyin;
+reg [31:0] Hwdata, Haddr, Prdata;
+reg [1:0] Htrans;
 
-// Duration :       28 Nov 2024 to 29 Nov 2024
+// Outputs
+wire Pwrite, Penable, Hreadyout;
+wire [1:0] Hresp;
+wire [2:0] Pselx;
+wire [31:0] Paddr, Pwdata, Hrdata;
 
-// Date of publish : 30 Nov 2024
-*/
+// Instantiate the Unit Under Test (UUT)
+BRIDGE_TOP uut (
+    .Hclk(Hclk),
+    .Hresetn(Hresetn),
+    .Hwrite(Hwrite),
+    .Hreadyin(Hreadyin),
+    .Hwdata(Hwdata),
+    .Haddr(Haddr),
+    .Htrans(Htrans),
+    .Prdata(Prdata),
+    .Penable(Penable),
+    .Pwrite(Pwrite),
+    .Pselx(Pselx),
+    .Paddr(Paddr),
+    .Pwdata(Pwdata),
+    .Hreadyout(Hreadyout),
+    .Hresp(Hresp),
+    .Hrdata(Hrdata)
+);
 
+// Clock generation
+initial begin
+    Hclk = 0;
+    forever #5 Hclk = ~Hclk; // Clock period: 10 ns
+end
 
-module Bridge_Top_tb();
+// Stimulus
+initial begin
+    // Initialize inputs
+    Hresetn = 0; Hwrite = 0; Hreadyin = 0;
+    Hwdata = 0; Haddr = 0; Prdata = 0;
+    Htrans = 2'b00;
 
+    // Apply reset
+    #10 Hresetn = 1;
 
-//Internal wires
-reg Hclk, Hresetn;
-wire[31:0] Haddr, Hwdata, Prdata, Haddr1, Haddr2, Hrdata, Hwdata1, Hwdata2, 
-	   Paddr, Pwdata;
-wire[1:0] Htrans, Hresp;
-wire[2:0] tempselx, Pselx;
-wire Hreadyin, Hwrite, Hwritereg, valid, Hreadyout, Penable, Pwrite;
+    // Test Case 1: Idle state, no write or read transaction
+    #20 Hwrite = 0; Htrans = 2'b00; Hwdata = 32'h0000_0000; Haddr = 32'h1000_0000;
 
+    // Test Case 2: Write transaction
+    #20 Hwrite = 1; Htrans = 2'b10; Hwdata = 32'hA5A5_A5A5; Haddr = 32'h2000_0000;
 
-//Instantiate AHB_MASTER
-AHB_MASTER AHB( .Hclk(Hclk), .Hresetn(Hresetn), .Hreadyout(Hreadyout), .Hrdata(Hrdata), 
- .Haddr(Haddr), .Hwdata(Hwdata), .Hwrite(Hwrite), .Hreadyin(Hreadyin), .Htrans(Htrans) );
+    // Test Case 3: Read transaction
+    #20 Hwrite = 0; Htrans = 2'b01; Hwdata = 32'h0000_0000; Haddr = 32'h3000_0000; Prdata = 32'h5A5A_5A5A;
 
+    // Test Case 4: Idle state after transaction completion
+    #20 Hwrite = 0; Htrans = 2'b00; Hwdata = 32'h0000_0000; Haddr = 32'h4000_0000;
 
-//INSTANTIATE APB_Controller_Interface
-APB_Controller_Interface APB( .Pwrite(Pwrite), .Penable(Penable), 
- .Pselx(Pselx), .Paddr(Paddr), .Pwdata(Pwdata), .Pwrite_out(Pwrite_out), 
- .Penable_out(Penable_out), .Pselx_out(Pselx_out), .Paddr_out(Paddr_out), .Pwdata_out(Pwdata_out), .Prdata(Prdata) );
+    // End simulation
+    #50 $finish;
+end
 
-
-//Instantiate Bridge_Top
-Bridge_Top Bridge( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .Hreadyin(Hreadyin), .Hresp(Hresp), 
-    		   .Htrans(Htrans), .Haddr(Haddr), .Hwdata(Hwdata), .Prdata(Prdata), .Pwrite(Pwrite), 
-   		   .Paddr(Paddr), .Penable(Penable), .Pselx(Pselx), .Pwdata(Pwdata), .Hreadyout(Hreadyout), .Hrdata(Hrdata) );
-
-
-//Clock generation
-initial
-  begin
-	Hclk = 1'b0;
-	forever #10
-	Hclk = ~Hclk;
-  end
-
-
-task reset();
-  begin
-	@(negedge Hclk)
-		Hresetn = 1'b0;
-	#10;
-	@(negedge Hclk)
-		Hresetn = 1'b1;
-  end
-endtask
-
-
-initial
-  begin
-	reset;
-	#10;
-	AHB.single_write();
-	#10;
-	AHB.single_read();
-	#10;
-	AHB.burst_write();
-	#10;
-	AHB.wrap_write();
-  end
+// Monitor signals
+initial begin
+    $monitor($time, " Hclk=%b Hresetn=%b Hwrite=%b Hreadyin=%b Htrans=%b Haddr=%h Hwdata=%h Prdata=%h Pwrite=%b Penable=%b Pselx=%b Paddr=%h Pwdata=%h Hreadyout=%b Hresp=%b Hrdata=%h",
+                     Hclk, Hresetn, Hwrite, Hreadyin, Htrans, Haddr, Hwdata, Prdata, Pwrite, Penable, Pselx, Paddr, Pwdata, Hreadyout, Hresp, Hrdata);
+end
 
 endmodule
-
-
-
