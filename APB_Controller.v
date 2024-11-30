@@ -1,224 +1,294 @@
-module APB_Controller(
-    input Hclk, Hresetn, Hwrite, valid, 
-    input [31:0] Haddr, Hwdata, Haddr1, Haddr2, Hwdata1, Hwdata2, Prdata, 
-    input Hwritereg, input [2:0] tempselx, 
-    output reg Pwrite, Penable, Hreadyout, 
-    output reg [2:0] Pselx, 
-    output reg [31:0] Pwdata, Paddr );
+/*
+// TITLE :          APB CONTROLLER.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       9 Nov 2024 to 17 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
 
 
-// Define the states
-parameter ST_IDLE = 3'b000,
-          ST_WWAIT = 3'b001,
-          ST_WRITE = 3'b010,
-	  ST_WRITEP = 3'b011,
-          ST_WENABLE = 3'b100,
-          ST_WENABLEP = 3'b101,
-          ST_READ = 3'b110,
-          ST_RENABLE = 3'b111;
 
-// Present States and Next States
-reg [2:0] ps, ns;
+module APB_Controller ( input Hclk, Hresetn, Hwrite, valid, Hwritereg, 
+			input[31:0] Haddr, Hwdata, Haddr1, Haddr2, Hwdata1, Hwdata2, Prdata, 
+			input[2:0] tempselx, output reg Pwrite, Penable, Hreadyout, 
+			output reg[31:0] Paddr, Pwdata, output reg[2:0] Pselx );
 
-// Present State Logic
-always @(posedge Hclk) begin
-    if (!Hresetn)
-        ps <= ST_IDLE;
-    else
-        ps <= ns;
-  end
 
-// Next State Logic
-always @(*) begin
-    ns = ps; // Default to the current state
-    case (ps)
-        ST_IDLE: begin
-            if (valid && Hwrite)
-                ns = ST_WWAIT;
-            else if (valid && ~Hwrite)
-                ns = ST_READ;
-        end
+//PARAMETERS
 
-        ST_WWAIT: begin
-            ns = valid ? ST_WRITEP : ST_WRITE;
-        end
+parameter ST_IDLE     = 3'b000;
+parameter ST_WWAIT    = 3'b001;
+parameter ST_READ     = 3'b010;
+parameter ST_WRITE    = 3'b011;
+parameter ST_WRITEP   = 3'b100;
+parameter ST_RENABLE  = 3'b101;
+parameter ST_WENABLE  = 3'b110;
+parameter ST_WENABLEP = 3'b111;
 
-        ST_WRITE: begin
-            ns = ~valid ? ST_WENABLE : ST_WENABLEP;
-        end
-	
-	ST_WRITEP: begin
-	    ns = ST_WENABLEP;
-	end
 
-        ST_WENABLE: begin
-            if (~valid)
-                ns = ST_IDLE;
-            else if (valid && ~Hwrite)
-                ns = ST_READ;
-            else if (valid && Hwrite)
-                ns = ST_WWAIT;
-        end
+// PRESENT STATE LOGIC
 
-        ST_WENABLEP: begin
-            ns = (valid && Hwritereg) ? ST_WRITEP : ST_WRITE;
-        end
+reg [2:0] PRESENT_STATE, NEXT_STATE;
 
-        ST_READ: begin
-            ns = ST_RENABLE;
-        end
+always @(posedge Hclk)
+ begin
+	if (~Hresetn)
+    		PRESENT_STATE <= ST_IDLE;
+  	else
+    		PRESENT_STATE <= NEXT_STATE;
+ end
 
-        ST_RENABLE: begin
-            if (~valid)
-                ns = ST_IDLE;
-            else if (valid && ~Hwrite)
-                ns = ST_READ;
-        end
 
-        default: ns = ST_IDLE;
-    endcase
-end
+// NEXT STATE LOGIC
 
-// Temporary Logic
-reg [31:0] Paddr_temp, Pwdata_temp;
-reg Pwrite_temp, Penable_temp;
+always @(*)
+ begin
+  case (PRESENT_STATE)
+    
+ 	ST_IDLE:begin
+		 if (~valid)
+		  NEXT_STATE = ST_IDLE;
+		 else if (valid && Hwrite)
+		  NEXT_STATE = ST_WWAIT;
+		 else 
+		  NEXT_STATE = ST_READ;
+		end    
+
+	ST_WWAIT:begin
+		 if (~valid)
+		  NEXT_STATE = ST_WRITE;
+		 else
+		  NEXT_STATE = ST_WRITEP;
+		end
+
+	ST_READ: begin
+		   NEXT_STATE = ST_RENABLE;
+		 end
+
+	ST_WRITE:begin
+		  if (~valid)
+		   NEXT_STATE = ST_WENABLE;
+		  else
+		   NEXT_STATE = ST_WENABLEP;
+		 end
+
+	ST_WRITEP:begin
+		   NEXT_STATE = ST_WENABLEP;
+		  end
+
+	ST_RENABLE:begin
+		     if (~valid)
+		      NEXT_STATE = ST_IDLE;
+		     else if (valid && Hwrite)
+		      NEXT_STATE = ST_WWAIT;
+		     else
+		      NEXT_STATE = ST_READ;
+		   end
+
+	ST_WENABLE:begin
+		     if (~valid)
+		      NEXT_STATE = ST_IDLE;
+		     else if (valid && Hwrite)
+		      NEXT_STATE = ST_WWAIT;
+		     else
+		      NEXT_STATE = ST_READ;
+		   end
+
+	ST_WENABLEP:begin
+		      if (~valid && Hwritereg)
+		       NEXT_STATE = ST_WRITE;
+		      else if (valid && Hwritereg)
+		       NEXT_STATE = ST_WRITEP;
+		      else
+		       NEXT_STATE = ST_READ;
+		    end
+
+	default: begin
+		   NEXT_STATE = ST_IDLE;
+		 end
+  endcase
+ end
+
+
+//OUTPUT LOGIC:
+
+reg Penable_temp,Hreadyout_temp,Pwrite_temp;
 reg [2:0] Pselx_temp;
-reg [31:0] Hreadyout_temp;
+reg [31:0] Paddr_temp, Pwdata_temp;
 
-always @(*) begin
-    // Default values for temporary logic
-    Paddr_temp = 32'b0;
-    Pwrite_temp = 1'b0;
-    Pselx_temp = 3'b000;
-    Penable_temp = 1'b0;
-    Pwdata_temp = 32'b0;
-    Hreadyout_temp = 1'b1;
+always @(*)
+ begin
+   case(PRESENT_STATE)
+    
+	ST_IDLE: begin
+			  if (valid && ~Hwrite) 
+			   begin
+			        Paddr_temp = Haddr;
+				Pwrite_temp= Hwrite;
+				Pselx_temp = tempselx;
+				Penable_temp=0;
+				Hreadyout_temp=0;
+			   end
+			  
+			  else if (valid && Hwrite)
+			   begin
+			        Pselx_temp  =0;
+				Penable_temp=0;
+				Hreadyout_temp=1;			   
+			   end
+			   
+			  else
+                            begin
+			        Pselx_temp  =0;
+				Penable_temp=0;
+				Hreadyout_temp=1;	
+			   end
+		  end    
 
-    case (ps)
-        ST_IDLE: begin
-            if (valid && Hwrite) begin
-                Pselx_temp = 3'b000;
-                Penable_temp = 1'b0;
-                Hreadyout_temp = 1'b0;
-            end else if (valid && ~Hwrite) begin
-                Paddr_temp = Haddr;
-                Pwrite_temp = Hwrite;
-                Pselx_temp = tempselx;
-                Penable_temp = 1'b0;
-                Hreadyout_temp = 1'b0;
-            end else begin
-                Pselx_temp = 3'b000;
-                Penable_temp = 1'b0;
-                Hreadyout_temp = 1'b1;
-            end
-        end
+	ST_WWAIT:begin
+	          if (~valid) 
+			   begin
+			    	Paddr_temp  = Haddr1;
+				Pwrite_temp = 1;
+				Pselx_temp  = tempselx;
+				Penable_temp= 0;
+				Pwdata_temp = Hwdata;
+				Hreadyout_temp=0;
+			   end
+			  
+			  else 
+			   begin
+			    	Paddr_temp = Haddr1;
+				Pwrite_temp= 1;
+				Pselx_temp = tempselx;
+				Pwdata_temp= Hwdata;
+				Penable_temp=0;
+				Hreadyout_temp=0;		   
+			   end
+			   
+		  end  
 
-        ST_WWAIT: begin
-            if (valid) begin
-                Paddr_temp = Haddr2;
-                Pwrite_temp = Hwrite;
-                Pselx_temp = tempselx;
-                Penable_temp = 1'b0;
-                Pwdata_temp = Hwdata1;
-                Hreadyout_temp = 1'b0;
-            end else begin
-                Paddr_temp = Haddr;
-                Pwrite_temp = Hwrite;
-                Pselx_temp = tempselx;
-                Penable_temp = 1'b0;
-                Pwdata_temp = Hwdata;
-                Hreadyout_temp = 1'b0;
-            end
-        end
+	ST_READ: begin
+			  	Penable_temp = 1;
+			  	Hreadyout_temp= 1;
+		 end
 
-        ST_WRITE: begin
-            Paddr_temp = Haddr;
-            Pwrite_temp = Hwrite;
-            Pselx_temp = tempselx;
-            Penable_temp = 1'b1;
-            Pwdata_temp = Hwdata;
-            Hreadyout_temp = ~valid;
-        end
+	ST_WRITE:begin
+              if (~valid) 
+			   begin
+				Penable_temp = 1;
+				Hreadyout_temp= 1;
+			   end
+			  
+			  else 
+			   begin
+				Penable_temp = 1;
+				Hreadyout_temp= 1;		   
+			   end
+		  end
 
-	ST_WRITEP: begin
-            Paddr_temp = Haddr;
-            Pwrite_temp = Hwrite;
-            Pselx_temp = tempselx;
-            Penable_temp = 1'b0;
-            Pwdata_temp = Hwdata;
-            Hreadyout_temp = ~valid;
-        end
+	ST_WRITEP:begin
+               		   	Penable_temp = 1;
+			   	Hreadyout_temp=1;
+		  end
 
-        ST_WENABLE: begin
-            Paddr_temp = Haddr;
-            Pwrite_temp = 1'b1;
-            Penable_temp = 1'b1;
-            Pselx_temp = tempselx;
-            Pwdata_temp = Hwdata;
-            Hreadyout_temp = 1'b1;
-        end
+	ST_RENABLE:begin
+	            if (valid && ~Hwrite) 
+			begin
+				Paddr_temp = Haddr;
+				Pwrite_temp= Hwrite;
+				Pselx_temp = tempselx;
+				Penable_temp= 0;
+				Hreadyout_temp=0;
+			end
+			  
+			  else if (valid && Hwrite)
+			    begin
+			     	 Pselx_temp = 0;
+				 Penable_temp=0;
+				 Hreadyout_temp=1;			   
+			    end
+			   
+			  else
+                	   begin
+			     	 Pselx_temp = 0;
+				 Penable_temp=0;
+				 Hreadyout_temp=1;	
+			    end
 
-        ST_WENABLEP: begin
-            if (valid && Hwritereg) begin
-                Paddr_temp = Haddr;
-                Pwrite_temp = 1'b1;
-                Penable_temp = 1'b1;
-                Pselx_temp = tempselx;
-                Pwdata_temp = Hwdata;
-                Hreadyout_temp = 1'b0;
-            end else if (~valid && Hwritereg) begin
-                Paddr_temp = Haddr;
-            end
-        end
+		  end
 
-        ST_READ: begin
-            Paddr_temp = Haddr;
-            Pwrite_temp = 1'b0;
-            Penable_temp = 1'b1;
-            Pselx_temp = tempselx;
-            Pwdata_temp = 32'b0;
-            Hreadyout_temp = 1'b0;
-        end
+	ST_WENABLEP:begin
+                 if (~valid && Hwritereg) 
+			      begin
+			       	  Paddr_temp = Haddr2;
+				  Pwrite_temp= Hwrite;
+				  Pselx_temp = tempselx;
+				  Penable_temp=0;
+				  Pwdata_temp =Hwdata;
+				  Hreadyout_temp=0;
+			      end
 
-        ST_RENABLE: begin
-            if (~valid) begin
-                Paddr_temp = Haddr;
-                Pwrite_temp = 1'b0;
-                Penable_temp = 1'b1;
-                Pselx_temp = tempselx;
-                Pwdata_temp = 32'b0;
-                Hreadyout_temp = 1'b1;
-            end else if (valid && ~Hwrite) begin
-                Paddr_temp = Haddr;
-            end
-        end
+			  
+			    else 
+			     begin
+			      	  Paddr_temp = Haddr2;
+				  Pwrite_temp= Hwrite;
+				  Pselx_temp = tempselx;
+				  Pwdata_temp= Hwdata;
+				  Penable_temp=0;
+				  Hreadyout_temp=0;		   
+			     end
+		    end
 
-        default: begin
-            Pselx_temp = 3'b000;
-            Penable_temp = 1'b0;
-            Hreadyout_temp = 1'b1;
-        end
-    endcase
+	ST_WENABLE :begin
+	             if (~valid && Hwritereg) 
+			      begin
+				   Pselx_temp = 0;
+				   Penable_temp=0;
+				   Hreadyout_temp=0;
+			      end
+			  
+			    else 
+			     begin
+				  Pselx_temp = 0;
+				  Penable_temp=0;
+				  Hreadyout_temp=0;		   
+			     end
+
+		     end
+
+ endcase
 end
 
-// Output Logic
-always @(posedge Hclk or negedge Hresetn) begin
-    if (!Hresetn) begin
-        Pwrite <= 1'b0;
-        Penable <= 1'b0;
-        Pselx <= 3'b000;
-        Pwdata <= 32'b0;
-        Paddr <= 32'b0;
-        Hreadyout <= 1'b1;
-    end else begin
-        Pwrite <= Pwrite_temp;
-        Penable <= Penable_temp;
-        Pselx <= Pselx_temp;
-        Pwdata <= Pwdata_temp;
-        Paddr <= Paddr_temp;
-        Hreadyout <= Hreadyout_temp;
-    end
-end
+
+//OUTPUT LOGIC
+
+always @(posedge Hclk)
+ begin
+  
+  if (~Hresetn)
+   begin
+    	Paddr     <= 0;
+	Pwrite    <= 0;
+	Pselx     <= 0;
+	Pwdata    <= 0;
+	Penable   <= 0;
+	Hreadyout <= 0;
+   end
+  
+  else
+   begin
+        Paddr     <= Paddr_temp;
+	Pwrite    <= Pwrite_temp;
+	Pselx     <= Pselx_temp;
+	Pwdata    <= Pwdata_temp;
+	Penable   <= Penable_temp;
+	Hreadyout <= Hreadyout_temp;
+   end
+ end
 
 endmodule
 
