@@ -1,3 +1,14 @@
+////**
+// TITLE :          AHB SLAVE INTERFACE.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       1 Nov 2024 to 5 Nov 2024
+
+// Date of publish : 30 Nov 2024
+**////
+
+
 module AHB_SLAVE_Interface( input Hclk, Hresetn, Hwrite, Hreadyin, 
  input[1:0] Htrans, Hresp, input[31:0] Haddr, Hwdata, Prdata, 
  output reg valid, output reg[31:0] Haddr1, Haddr2, Hwdata1, Hwdata2, Hrdata, 
