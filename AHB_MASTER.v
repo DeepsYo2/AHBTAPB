@@ -1,3 +1,14 @@
+/*
+// TITLE :          AHB MASTER.v
+
+// Created by :     Mr. Deepak Kumar
+
+// Duration :       22 Nov 2024 to 24 Nov 2024
+
+// Date of publish : 30 Nov 2024
+*/
+
+
 module AHB_MASTER( input Hclk, Hresetn, Hreadyout, input[31:0] Hrdata, 
  output reg[31:0] Haddr, Hwdata, output reg Hwrite, Hreadyin, 
  output reg[1:0] Htrans );
