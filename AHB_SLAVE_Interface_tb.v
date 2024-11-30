@@ -1,90 +1,64 @@
-/*
-// TITLE :          AHB SLAVE INTERFACE_tb.v
+module AHB_SLAVE_INTERFACE_tb;
 
-// Created by :     Mr. Deepak Kumar
+// Declaring inputs and outputs for AHB_Master instance
+reg Hclk, Hresetn, Hreadyout;
+reg [1:0] Hresp;
+reg [31:0] Hrdata;
+wire Hwrite, Hreadyin;
+wire [1:0] Htrans;
+wire [31:0] Hwdata, Haddr;
 
-// Duration :       6 Nov 2024 to 8 Nov 2024
+// Instantiate the AHB_Master module
+AHB_Master uut (
+    .Hclk(Hclk),
+    .Hresetn(Hresetn),
+    .Hresp(Hresp),
+    .Hrdata(Hrdata),
+    .Hwrite(Hwrite),
+    .Hreadyin(Hreadyin),
+    .Hreadyout(Hreadyout),
+    .Htrans(Htrans),
+    .Hwdata(Wwdata),
+    .Haddr(Haddr)
+);
 
-// Date of publish : 30 Nov 2024
-*/
+// Clock generation
+initial begin
+    Hclk = 0;
+    forever #5 Hclk = ~Hclk;  // 10ns clock period
+end
 
+// Stimulus
+initial begin
+    // Initialize inputs
+    Hresetn = 0;
+    Hreadyout = 1;
+    Hresp = 2'b00;
+    Hrdata = 32'h0000_0000;
 
+    // Apply reset
+    #10 Hresetn = 1;
 
-module AHB_SLAVE_Interface_tb();
+    // Single Write Operation
+    #10 uut.single_write();
 
+    // Wait some time
+    #20;
 
-//Declaration of the inputs and outputs
-reg Hclk, Hresetn, Hwrite, Hreadyin;
-reg[1:0] Htrans;
-reg[31:0] Haddr;
-reg[31:0] Hwdata;
-wire valid, Hwritereg;
-wire[31:0] Haddr1;
-wire[31:0] Haddr2;
-wire[31:0] Hwdata1, Hrdata;
-wire[31:0] Hwdata2;
-wire[2:0] tempselx;
-wire[1:0] Hresp;
+    // Single Read Operation
+    #10 uut.single_read();
 
+    // Wait for tasks to complete
+    #50;
 
-//Instantiation
-AHB_SLAVE_Interface DUT( .Hclk(Hclk), .Hresetn(Hresetn), .Hwrite(Hwrite), .Hreadyin(Hreadyin), 
- .Htrans(Htrans), .Haddr(Haddr), .Hwdata(Hwdata), .valid(valid), .Haddr1(Haddr1), .Haddr2(Haddr2), 
- .Hwdata1(Hwdata1), .Hwdata2(Hwdata2), .Hwritereg(Hwritereg), .tempselx(tempselx), .Hrdata(Hrdata), .Hresp(Hresp) );
+    // End simulation
+    $stop;
+end
 
-
-//Declaration of Hclk
-initial
-  begin
-	Hclk = 1'b0;
-  forever #10
-	Hclk = ~Hclk;
-  end
-
-
-//Declaration of Hresetn
-task r();
-  begin
-	@(negedge Hclk)
-	    Hresetn = 1'b0;
-	#10;
-	@(negedge Hclk)
-	    Hresetn = 1'b1;
-  end
-endtask
-
-
-//Passsing inputs through stimulus task
-task in( input a, input[1:0] b, input[31:0] c, input[31:0] d );
-   begin
-	Hreadyin = a;
-	Htrans = b;
-	Haddr = c;
-	Hwdata = d;
-   end
-endtask
-
-
-//Monitor Output signals
-initial
-  begin
-        $monitor("Time = %0t, Haddr = %h, valid = %b, Hwritereg = %b, tempselx = %b", 
-                 $time, Haddr, valid, Hwritereg, tempselx);
-  end
-
-
-//Stimulus Generation
-initial
-  begin
-	r;
-	#10;
-	in( 1'b1, 2'b10, 32'h8c00_1234, 32'h8500_0000 );
-	#10;
-	in( 1'b0, 2'b11, 32'h8040_0000, 32'h8000_0000 );
-	#10;
-	
-	$finish;  //End Simulation
-  end
+// Monitor output
+initial begin
+    $monitor($time, " Hclk=%b Hresetn=%b Hwrite=%b Hreadyin=%b Htrans=%b Haddr=%h Hwdata=%h",
+                     Hclk, Hresetn, Hwrite, Hreadyin, Htrans, Haddr, Hwdata);
+end
 
 endmodule
-
