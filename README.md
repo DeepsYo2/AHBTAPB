@@ -126,13 +126,10 @@ The bridge enables efficient power management by offloading non-critical transac
 4.	IoT Devices:
 Facilitates integration of IoT sensors and actuators that typically require low-speed interfaces.
 
-Simulation Output:
+# Simulation Outputs:
 
-![image](https://github.com/user-attachments/assets/04e10b14-56eb-41ca-b56d-b0e4fc9e4b9f)
-![image](https://github.com/user-attachments/assets/90573583-6c5d-4f24-8615-87a299a04b19)
-![image](https://github.com/user-attachments/assets/42a8a923-b8c0-4d05-b0fa-0c0ae65b6462)
-![image](https://github.com/user-attachments/assets/86a4fbae-b2bc-497f-84e4-492758dfc51b)
-![image](https://github.com/user-attachments/assets/f47f8bf2-89d0-47ec-8a4e-efc8e002eb01)
+![AHBTAPB_Simulation_1](https://github.com/user-attachments/assets/bc5c5117-44fb-4333-9751-1bda410550c5)
+
 
 
 Synthesis Output:
