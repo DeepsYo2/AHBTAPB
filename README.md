@@ -112,8 +112,6 @@ The design is verified using testbenches to simulate single read and write trans
 4.	Device Specifications:
 •	Family: Cyclone V.
 •	Device: 5CSXFC6D6F31I7ES.
-________________________________________
-
 
 
 # Applications of AHB-to-APB Bridge:
@@ -128,20 +126,26 @@ Facilitates integration of IoT sensors and actuators that typically require low-
 
 # Simulation Outputs:
 
-![AHBTAPB_Simulation_1](https://github.com/user-attachments/assets/bc5c5117-44fb-4333-9751-1bda410550c5)
+![AHBTAPB_Simulation_1](https://github.com/user-attachments/assets/51f16907-e4f8-4470-b102-8cdf042237be)
+![AHBTAPB_Simulation_2](https://github.com/user-attachments/assets/1268609f-6f88-4f6e-9a8c-e6363a16bb05)
+![AHBTAPB_Simulation_3](https://github.com/user-attachments/assets/7c834f5e-5ec0-4434-9890-3273ba6413fd)
+![AHBTAPB_Simulation_4](https://github.com/user-attachments/assets/4be86ae0-9f30-45d3-a015-a93fc2ed4f36)
+![AHBTAPB_Simulation_5](https://github.com/user-attachments/assets/8bcc960f-f7cc-43cb-9317-86ab488fadc6)
+![AHBTAPB_Simulation_6](https://github.com/user-attachments/assets/223ec791-7309-446e-b793-77a4e736fa2b)
+![AHBTAPB_Simulation_7](https://github.com/user-attachments/assets/b25fc037-665e-4f65-a7a3-8c322640e582)
 
 
-
-Synthesis Output:
+# Synthesis Output:
  
 ![image](https://github.com/user-attachments/assets/78f846fd-3d33-4618-8baa-4509ec6a7f46)
 
 
 
 # Conclusion:
+
 The AHB to APB protocol bridge design serves as an essential component for integrating different bus protocols in a system-on-chip (SoC) architecture. The bridge enables communication between the high-performance AHB (Advanced High-performance Bus) and the low-power APB (Advanced Peripheral Bus) by efficiently translating between these two distinct bus protocols. The AHB protocol is typically used for high-speed data transfers between processors, memory, and peripherals, while the APB protocol is designed for interfacing with slower peripherals, offering a simpler, more power-efficient solution.
 The key function of the AHB to APB bridge is to convert the AHB protocol's signals (such as address, data, and control signals) into the APB protocol's simpler format. This conversion is accomplished through the bridge's control logic, which decodes the AHB request, translates it into an APB transaction, and manages the timing for both protocols. Specifically, the bridge ensures that the AHB master’s commands (such as read and write operations) are properly synchronized with the slower APB peripherals.
 A major challenge in the design of the AHB to APB bridge lies in managing the difference in data transfer rates and complexity between the two protocols. AHB typically involves higher frequencies and more complex handshaking mechanisms, while APB operates at a lower frequency with a simpler handshake. To address this, the bridge includes buffers, control signals, and state machines to ensure smooth transitions and prevent data loss or timing violations.
 Additionally, the bridge must ensure that the APB slave devices are not overwhelmed by the higher-speed requests from the AHB master. This is accomplished by managing the flow of data with mechanisms such as the PENABLE, PWRITE, PSEL, and PADDR signals, which control when and how data is transferred to and from the APB peripherals.
-In conclusion, the AHB to APB bridge design is a critical aspect of modern chip architectures, enabling smooth communication between high-performance and low-power components. The careful design of state machines, buffers, and control logic ensures that the bridge operates efficiently, ensuring that high-speed data can be correctly transferred to and from slower peripherals without loss or errors. This design provides a robust and scalable solution for building complex, power-efficient, and high-performance systems.
+
 
