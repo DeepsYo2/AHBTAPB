@@ -137,7 +137,7 @@ Facilitates integration of IoT sensors and actuators that typically require low-
 
 # Synthesis Output:
  
-![image](https://github.com/user-attachments/assets/78f846fd-3d33-4618-8baa-4509ec6a7f46)
+![AHBTAPB_Synthesis](https://github.com/user-attachments/assets/345b2903-6d1d-4644-b979-a3701bd95ce9)
 
 
 
